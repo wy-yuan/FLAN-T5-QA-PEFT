@@ -47,14 +47,48 @@ def check_dataset_dialogsum(dataset):
     print(dash_line)
     print(f'MODEL GENERATION - ZERO SHOT:\n{output}')
 
+def check_dataset_medicalQA(dataset, tokenizer, model):
+    print(dataset["train"].shape, type(dataset["train"]))
+    print(dataset["train"][0])
+    print(dataset["train"][0]['train'])
+    # Select sample
+    index = 200
+    # sample = dataset['train'][index]
+    # context = sample['context']
+    # question = sample['question']
+    # ground_truth = sample['answers']['text'][0] if sample['answers']['text'] else "No answer"
+
+    # # Format prompt
+    # prompt = f"""
+    # Answer the question based on the given context.
+    #
+    # Context: {context}
+    #
+    # Question: {question}
+    #
+    # Answer:
+    # """
+    #
+    # # Tokenize and generate
+    # inputs = tokenizer(prompt, return_tensors='pt', max_length=512, truncation=True)
+    # output = tokenizer.decode(
+    #     model.generate(
+    #         inputs["input_ids"],
+    #         max_new_tokens=100,
+    #         temperature=0.7,
+    #         do_sample=True,
+    #         pad_token_id=tokenizer.eos_token_id
+    #     )[0],
+    #     skip_special_tokens=True
+    # )
+    #
+    # print(f"Full output:\n{output}")
+    # print(f"\nGround truth: {ground_truth}")
+
 if __name__ == "__main__":
-    # load dataset
     # huggingface_dataset_name = "knkarthick/dialogsum"
     # dataset = load_dataset(huggingface_dataset_name)
     # print(dataset.shape)
-    ds = load_dataset("Ajayaadhi/Medical-QA")
-    print(ds["train"].shape)
-    print(ds["train"][0]['train'])
     # ds = load_dataset("KaungHtetCho/MedicalQA")
     # print(ds.shape)
 
@@ -65,4 +99,11 @@ if __name__ == "__main__":
 
     # print model trainable parameters
     print_number_of_trainable_model_parameters(original_model)
+
+    # load dataset and check original model on sample data
+    ds = load_dataset("Ajayaadhi/Medical-QA")
+    # check_dataset_medicalQA(ds, tokenizer, original_model)
+
+
+
 
