@@ -18,66 +18,6 @@ def print_number_of_trainable_model_parameters(model):
     print(f"All model parameters: {all_model_params}")
     print(f"Percentage of trainable model parameters: {100 * trainable_model_params / all_model_params:.2f}%")
 
-def check_dataset_dialogsum(dataset):
-    index = 200
-
-    dialogue = dataset['test'][index]['dialogue']
-    summary = dataset['test'][index]['summary']
-
-    prompt = f"""
-    Summarize the following conversation.
-
-    {dialogue}
-
-    Summary:
-    """
-    inputs = tokenizer(prompt, return_tensors='pt')
-    output = tokenizer.decode(
-        original_model.generate(
-            inputs["input_ids"],
-            max_new_tokens=200,
-        )[0],
-        skip_special_tokens=True
-    )
-
-    dash_line = '-'.join('' for x in range(100))
-    print(dash_line)
-    print(f'INPUT PROMPT:\n{prompt}')
-    print(dash_line)
-    print(f'BASELINE HUMAN SUMMARY:\n{summary}\n')
-    print(dash_line)
-    print(f'MODEL GENERATION - ZERO SHOT:\n{output}')
-
-def check_dataset_medicalQA(dataset, tokenizer, model):
-    # Select sample
-    index = 90
-    sample = dataset['train'][index]
-    instruction = sample['Instruction']
-    question = sample['Input']
-    ground_truth = sample['Response'] if sample['Response'] else "No answer"
-
-    # Format prompt
-    prompt = f"""
-    Answer the following medical question with a detailed explanation (more than 30 words).
-    Question: {question}
-    Answer:
-    """
-
-    # Tokenize and generate
-    inputs = tokenizer(prompt, return_tensors='pt')
-    output = tokenizer.decode(
-        model.generate(
-            inputs["input_ids"],
-            max_new_tokens=200,
-            do_sample=False,
-        )[0],
-        skip_special_tokens=True
-    )
-
-    print(f"Prompt:\n{prompt}")
-    print(f"Full output:\n{output}")
-    print(f"\nGround truth: {ground_truth}")
-
 def check_dataset_patient_doc_QA(dataset, tokenizer, model):
     # Select sample
     index = 0
@@ -116,13 +56,6 @@ def tokenize_function(example):
     example['labels'] = tokenizer(example["Doctor"], padding="max_length", truncation=True, return_tensors="pt").input_ids
     return example
 
-def clear_resources():
-    gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-        torch.cuda.synchronize()
-
-
 class DirectSaveTrainer(Trainer):
     """Trainer that saves checkpoints directly without temp files"""
 
@@ -153,11 +86,6 @@ if __name__ == "__main__":
 
     # print model trainable parameters
     print_number_of_trainable_model_parameters(original_model)
-
-    # load dataset and check original model on sample data
-    # ds = load_dataset("Ajayaadhi/Medical-QA")
-    # qa_dataset = load_from_disk("./data/medical_qa")
-    # check_dataset_medicalQA(qa_dataset, tokenizer, original_model)
 
     # prepare dataset
     qa_dataset = load_from_disk("./data/patient_doctor_QA")
@@ -190,13 +118,6 @@ if __name__ == "__main__":
         save_steps=10000,  # Explicitly set save steps
         overwrite_output_dir=True,  # Allow overwriting
     )
-
-    # trainer = Trainer(
-    #     model=original_model,
-    #     args=training_args,
-    #     train_dataset=tokenized_datasets['train'],
-    #     eval_dataset=tokenized_datasets['validation']
-    # )
 
     trainer = DirectSaveTrainer(
         model=original_model,

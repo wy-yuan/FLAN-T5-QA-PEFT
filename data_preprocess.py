@@ -1,4 +1,4 @@
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 from datasets import Dataset, DatasetDict
 import pandas as pd
 import re
@@ -98,12 +98,39 @@ def process_hf_dataset(dataset, text_column_name='train'):
             remove_columns=dataset.column_names  # Remove ALL original columns
         )
 
+
+def save_dataset_to_disk(combined_dataset, save_path):
+    """
+    Save Hugging Face DatasetDict to disk
+    """
+    print(f"Saving dataset to: {save_path}")
+
+    # Save the entire DatasetDict
+    combined_dataset.save_to_disk(save_path)
+
+    print("Dataset saved successfully!")
+
 if __name__ == "__main__":
-    ds = load_dataset("Ajayaadhi/Medical-QA")
-    dataset = split_datasets(ds['train'])
-    # reformat_data(ds)
-    dataset_ = process_hf_dataset(dataset)
-    print("\n One example of processed data: \n", dataset["train"][0])
+    # ds = load_dataset("Ajayaadhi/Medical-QA")
+    # dataset = split_datasets(ds['train'])
+    # dataset_ = process_hf_dataset(dataset)
+    # print("\n One example of processed data: \n", dataset["train"][0])
+    # save_dataset_to_disk(dataset_, "./data/medical_qa")
+
+    # load data
+    # qa_dataset = load_from_disk("./data/medical_qa")
+    # print(qa_dataset["train"].shape)
+    # print("\n One example of processed data: \n", qa_dataset["train"][0])
+
+    # patient-doctor dataset
+    # ds = load_dataset("KaungHtetCho/MedicalQA")
+    # print(ds["train"][10])
+    # split_dataset = split_datasets(ds['train'])
+    # save_dataset_to_disk(split_dataset, "./data/patient_doctor_QA")
+    qa_dataset = load_from_disk("./data/patient_doctor_QA")
+    print(qa_dataset["train"].shape, qa_dataset["validation"].shape, qa_dataset["test"].shape)
+    print("\n One example: \n", qa_dataset["test"][1])
+
 
 
 
