@@ -80,7 +80,7 @@ def check_dataset_medicalQA(dataset, tokenizer, model):
 
 def check_dataset_patient_doc_QA(dataset, tokenizer, model):
     # Select sample
-    index = 0
+    index = 100
     sample = dataset['train'][index]
     instruction = sample['Description']
     question = sample['Patient']
@@ -161,47 +161,47 @@ if __name__ == "__main__":
 
     # prepare dataset
     qa_dataset = load_from_disk("./data/patient_doctor_QA")
-    # check_dataset_patient_doc_QA(qa_dataset, tokenizer, original_model)
+    check_dataset_patient_doc_QA(qa_dataset, tokenizer, original_model)
 
-    tokenized_datasets = qa_dataset.map(tokenize_function, batched=True)
-    tokenized_datasets = tokenized_datasets.remove_columns(['Description', 'Patient', 'Doctor'])
-    print(f"Shapes of the datasets:")
-    print(f"Training: {tokenized_datasets['train'].shape}")
-    print(f"Validation: {tokenized_datasets['validation'].shape}")
-    print(f"Test: {tokenized_datasets['test'].shape}")
-
-    print(tokenized_datasets)
-
-    original_join = os.path.join
-    def patched_join(*args):
-        result = original_join(*args)
-        return result.replace('\\', '/')
-    # Apply the patch
-    os.path.join = patched_join
-
-    output_dir = f'D:/yuan/projects/QA_checkpoints-{str(int(time.time()))}'
-
-    training_args = TrainingArguments(
-        output_dir=output_dir,
-        learning_rate=1e-5,
-        num_train_epochs=1,
-        weight_decay=0.01,
-        logging_steps=1,
-        save_steps=10000,  # Explicitly set save steps
-        overwrite_output_dir=True,  # Allow overwriting
-    )
-
-    # trainer = Trainer(
+    # tokenized_datasets = qa_dataset.map(tokenize_function, batched=True)
+    # tokenized_datasets = tokenized_datasets.remove_columns(['Description', 'Patient', 'Doctor'])
+    # print(f"Shapes of the datasets:")
+    # print(f"Training: {tokenized_datasets['train'].shape}")
+    # print(f"Validation: {tokenized_datasets['validation'].shape}")
+    # print(f"Test: {tokenized_datasets['test'].shape}")
+    #
+    # print(tokenized_datasets)
+    #
+    # original_join = os.path.join
+    # def patched_join(*args):
+    #     result = original_join(*args)
+    #     return result.replace('\\', '/')
+    # # Apply the patch
+    # os.path.join = patched_join
+    #
+    # output_dir = f'D:/yuan/projects/QA_checkpoints-{str(int(time.time()))}'
+    #
+    # training_args = TrainingArguments(
+    #     output_dir=output_dir,
+    #     learning_rate=1e-5,
+    #     num_train_epochs=1,
+    #     weight_decay=0.01,
+    #     logging_steps=1,
+    #     save_steps=10000,  # Explicitly set save steps
+    #     overwrite_output_dir=True,  # Allow overwriting
+    # )
+    #
+    # # trainer = Trainer(
+    # #     model=original_model,
+    # #     args=training_args,
+    # #     train_dataset=tokenized_datasets['train'],
+    # #     eval_dataset=tokenized_datasets['validation']
+    # # )
+    #
+    # trainer = DirectSaveTrainer(
     #     model=original_model,
     #     args=training_args,
     #     train_dataset=tokenized_datasets['train'],
     #     eval_dataset=tokenized_datasets['validation']
     # )
-
-    trainer = DirectSaveTrainer(
-        model=original_model,
-        args=training_args,
-        train_dataset=tokenized_datasets['train'],
-        eval_dataset=tokenized_datasets['validation']
-    )
-    trainer.train()
+    # trainer.train()
