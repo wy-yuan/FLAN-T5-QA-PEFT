@@ -133,6 +133,42 @@ def evaluate_with_metric(dataset, tokenizer, original_model, peft_model):
         print(f"{metric}: {score:.3f}")
 
 
+def get_answer(user_input, model_version="peft"):
+    model_name = 'google/flan-t5-base'
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    if model_version =="original":
+        model_name = 'google/flan-t5-base'
+        model_ = AutoModelForSeq2SeqLM.from_pretrained(model_name, torch_dtype=torch.bfloat16)
+    elif model_version == "peft":
+        peft_model_base = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base", torch_dtype=torch.bfloat16)
+        model_ = PeftModel.from_pretrained(peft_model_base,
+                                               './checkpoints/peft_QA_checkpoints-1752701196/checkpoint-40000',
+                                               torch_dtype=torch.bfloat16, is_trainable=False)
+
+    # Format prompt
+    prompt = f"""
+    Instruction: Answer the following question as a doctor.
+    Question: {user_input}
+    Answer:
+    """
+
+    ge_config_v2 = GenerationConfig(
+        max_new_tokens=150,
+        num_beams=3,
+        early_stopping=True,
+        repetition_penalty=1.2,  # Prevents repetition!
+        no_repeat_ngram_size=3,  # No 3-gram repetition
+        do_sample=False,
+        pad_token_id=tokenizer.eos_token_id,
+        eos_token_id=tokenizer.eos_token_id
+    )
+
+    inputs = tokenizer(prompt, return_tensors="pt")
+    model_text_output = tokenizer.decode(model_.generate(input_ids=inputs.input_ids, generation_config=ge_config_v2)[0],
+        skip_special_tokens=True
+    )
+    return model_text_output
+
 if __name__ == "__main__":
     model_name = 'google/flan-t5-base'
     original_model = AutoModelForSeq2SeqLM.from_pretrained(model_name, torch_dtype=torch.bfloat16)
