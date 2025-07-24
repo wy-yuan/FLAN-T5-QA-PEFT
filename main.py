@@ -18,12 +18,12 @@ class ModernChatbotGUI:
         self.setup_styles()
 
         # Set dark theme colors
-        self.bg_color = "#1a1a1a"
-        self.secondary_bg = "#2d2d2d"
+        self.bg_color = "#feffef"
+        self.secondary_bg = "#d6d6d6"
         self.accent_color = "#00b4d8"
-        self.text_color = "#ffffff"
-        self.user_msg_bg = "#0077b6"
-        self.bot_msg_bg = "#2d2d2d"
+        self.text_color = "#292929"
+        self.user_msg_bg = "#d2e9be"
+        self.bot_msg_bg = "#e6e6e6"
 
         self.root.configure(bg=self.bg_color)
 
@@ -79,14 +79,14 @@ class ModernChatbotGUI:
             highlightthickness=0
         )
         self.status_dot.pack(side=tk.LEFT, padx=(0, 5))
-        self.status_dot.create_oval(0, 0, 10, 10, fill="#00ff00", outline="")
+        self.status_dot.create_oval(0, 0, 10, 10, fill="#005c00", outline="")
 
         self.status_label = tk.Label(
             self.status_frame,
             text="Online",
             font=("Helvetica", 10),
             bg=self.secondary_bg,
-            fg="#00ff00"
+            fg="#006d00"
         )
         self.status_label.pack(side=tk.LEFT)
 
@@ -126,14 +126,14 @@ class ModernChatbotGUI:
         input_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
 
         # Create rounded input field appearance
-        input_bg = tk.Frame(input_frame, bg="#3d3d3d", highlightbackground="#3d3d3d", highlightthickness=2)
+        input_bg = tk.Frame(input_frame, bg="#ffffff", highlightbackground="#ececec", highlightthickness=2)
         input_bg.pack(fill=tk.X, side=tk.LEFT, expand=True, padx=(0, 10))
 
         self.message_input = tk.Text(
             input_bg,
             height=2,
             font=self.input_font,
-            bg="#3d3d3d",
+            bg="#ffffff",
             fg=self.text_color,
             insertbackground=self.text_color,
             relief=tk.FLAT,
@@ -179,54 +179,201 @@ class ModernChatbotGUI:
             self.message_input.delete("1.0", tk.END)
             self.message_input.config(fg=self.text_color)
 
+    def create_rounded_rectangle(self, canvas, x1, y1, x2, y2, radius=15, **kwargs):
+        """Create a rounded rectangle on canvas"""
+        points = []
+        for x, y in [(x1, y1 + radius), (x1, y1), (x1 + radius, y1),
+                     (x2 - radius, y1), (x2, y1), (x2, y1 + radius),
+                     (x2, y2 - radius), (x2, y2), (x2 - radius, y2),
+                     (x1 + radius, y2), (x1, y2), (x1, y2 - radius)]:
+            points.extend([x, y])
+        return canvas.create_polygon(points, smooth=True, **kwargs)
+    
+    def create_avatar(self, parent, sender, size=35):
+        """Create avatar for user or bot"""
+        avatar_frame = tk.Frame(parent, bg=self.bg_color, width=size, height=size)
+        avatar_frame.pack_propagate(False)
+        
+        avatar_canvas = tk.Canvas(
+            avatar_frame, 
+            width=size, 
+            height=size, 
+            bg=self.bg_color, 
+            highlightthickness=0
+        )
+        avatar_canvas.pack()
+        
+        if sender == "user":
+            # User avatar - circle with initial
+            avatar_canvas.create_oval(
+                2, 2, size-2, size-2,
+                fill="#b5ce70",
+                outline="#5B693B",
+                width=2
+            )
+            avatar_canvas.create_text(
+                size//2, size//2,
+                text="'.'",
+                font=("Helvetica", size//2, "bold"),
+                fill="black"
+            )
+        else:
+            # Bot avatar - rounded square with bot icon
+            self.create_rounded_rectangle(
+                avatar_canvas,
+                2, 2, size-2, size-2,
+                radius=8,
+                fill="#b1b1b1",
+                outline="#404040",
+                width=2
+            )
+            # Simple bot icon (two dots for eyes)
+            eye_size = 3
+            eye_y = size//2 - 3
+            avatar_canvas.create_oval(
+                size//2 - 7, eye_y,
+                size//2 - 7 + eye_size, eye_y + eye_size,
+                fill="#004400", outline=""
+            )
+            avatar_canvas.create_oval(
+                size//2 + 4, eye_y,
+                size//2 + 4 + eye_size, eye_y + eye_size,
+                fill="#004400", outline=""
+            )
+            # Bot mouth
+            avatar_canvas.create_arc(
+                size//2 - 8, size//2,
+                size//2 + 8, size//2 + 8,
+                start=0, extent=-180,
+                style=tk.ARC,
+                outline="#004400",
+                width=2
+            )
+        
+        return avatar_frame
+    
     def create_message_bubble(self, sender, message, timestamp):
-        """Create a modern message bubble"""
-        # Message container
-        msg_container = tk.Frame(self.scrollable_frame, bg=self.bg_color)
-        msg_container.pack(fill=tk.X, padx=20, pady=5)
-
+        """Create a modern message bubble with avatar"""
+        # Main message row container
+        row_container = tk.Frame(self.scrollable_frame, bg=self.bg_color)
+        row_container.pack(fill=tk.X, padx=15, pady=8)
+        
+        # Inner container for avatar and message
+        inner_container = tk.Frame(row_container, bg=self.bg_color)
+        
         # Determine alignment and colors based on sender
         if sender == "user":
             bg_color = self.user_msg_bg
-            fg_color = "white"
-            anchor = tk.E
-            justify = tk.RIGHT
+            fg_color = "black"
+            inner_container.pack(anchor=tk.E)
+            avatar_side = tk.RIGHT
+            bubble_side = tk.LEFT
+            time_anchor = tk.E
         else:
             bg_color = self.bot_msg_bg
             fg_color = self.text_color
-            anchor = tk.W
-            justify = tk.LEFT
-
-        # Message bubble frame
-        bubble_frame = tk.Frame(msg_container, bg=bg_color)
-        bubble_frame.pack(anchor=anchor)
-
-        # Message text
-        msg_label = tk.Label(
-            bubble_frame,
+            inner_container.pack(anchor=tk.W)
+            avatar_side = tk.LEFT
+            bubble_side = tk.RIGHT
+            time_anchor = tk.W
+        
+        # Create avatar
+        avatar = self.create_avatar(inner_container, sender)
+        avatar.pack(side=avatar_side, padx=(5, 5))
+        
+        # Message content container
+        content_container = tk.Frame(inner_container, bg=self.bg_color)
+        content_container.pack(side=bubble_side)
+        
+        # Create canvas for rounded bubble
+        bubble_canvas = tk.Canvas(
+            content_container,
+            bg=self.bg_color,
+            highlightthickness=0
+        )
+        bubble_canvas.pack()
+        
+        # Create message label first to get dimensions
+        temp_label = tk.Label(
+            content_container,
             text=message,
             font=self.chat_font,
-            bg=bg_color,
-            fg=fg_color,
-            wraplength=300,
-            justify=justify,
-            padx=15,
-            pady=10
+            wraplength=280,
+            justify=tk.LEFT
         )
-        msg_label.pack()
-
-        # Timestamp
+        temp_label.update_idletasks()
+        
+        # Calculate bubble dimensions
+        padding = 20
+        text_width = temp_label.winfo_reqwidth() + padding * 2
+        text_height = temp_label.winfo_reqheight() + padding * 1.5
+        
+        # Configure canvas size
+        bubble_canvas.config(width=text_width, height=text_height)
+        
+        # Draw rounded rectangle
+        self.create_rounded_rectangle(
+            bubble_canvas,
+            5, 5,
+            text_width - 5, text_height - 5,
+            radius=15,
+            fill=bg_color,
+            outline=""
+        )
+        
+        # Add shadow effect for user messages
+        if sender == "user":
+            self.create_rounded_rectangle(
+                bubble_canvas,
+                7, 7,
+                text_width - 3, text_height - 3,
+                radius=15,
+                fill="#a5c284",
+                outline=""
+            )
+            self.create_rounded_rectangle(
+                bubble_canvas,
+                5, 5,
+                text_width - 5, text_height - 5,
+                radius=15,
+                fill=bg_color,
+                outline=""
+            )
+        
+        # Place text on canvas
+        bubble_canvas.create_text(
+            text_width // 2,
+            text_height // 2,
+            text=message,
+            font=self.chat_font,
+            fill=fg_color,
+            width=280,
+            anchor=tk.CENTER
+        )
+        
+        # Destroy temporary label
+        temp_label.destroy()
+        
+        # Timestamp below the message
+        time_container = tk.Frame(row_container, bg=self.bg_color)
+        time_container.pack(fill=tk.X)
+        
         time_label = tk.Label(
-            msg_container,
+            time_container,
             text=timestamp,
-            font=("Helvetica", 9),
+            font=("Helvetica", 8),
             bg=self.bg_color,
             fg="#808080"
         )
-        time_label.pack(anchor=anchor, padx=5)
-
+        
+        # Adjust timestamp position based on sender
+        if sender == "user":
+            time_label.pack(anchor=time_anchor, padx=(0, 45))
+        else:
+            time_label.pack(anchor=time_anchor, padx=(45, 0))
+        
         # Animate entry
-        self.animate_message_entry(msg_container)
+        self.animate_message_entry(row_container)
 
     def animate_message_entry(self, widget):
         """Simple fade-in animation for messages"""
@@ -268,12 +415,12 @@ class ModernChatbotGUI:
         """Update the status indicator"""
         if status == "typing":
             self.status_dot.delete("all")
-            self.status_dot.create_oval(0, 0, 10, 10, fill="#ffa500", outline="")
-            self.status_label.config(text="Typing...", fg="#ffa500")
+            self.status_dot.create_oval(0, 0, 10, 10, fill="#9c6600", outline="")
+            self.status_label.config(text="Typing...", fg="#9c6600")
         else:
             self.status_dot.delete("all")
-            self.status_dot.create_oval(0, 0, 10, 10, fill="#00ff00", outline="")
-            self.status_label.config(text="Online", fg="#00ff00")
+            self.status_dot.create_oval(0, 0, 10, 10, fill="#005800", outline="")
+            self.status_label.config(text="Online", fg="#005800")
 
     def get_bot_response(self, user_message):
         """Generate bot response with typing simulation"""
@@ -320,7 +467,7 @@ class ModernChatbotGUI:
 
         # Default response
         else:
-            return get_answer(user_input_lower, model_version="original")
+            return get_answer(user_input_lower, model_version="original") # either "original" or "peft"
 
     def on_window_resize(self, event):
         """Handle window resize events"""

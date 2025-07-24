@@ -29,7 +29,7 @@ def evaluate_dataset_patient_doc_QA(dataset, tokenizer, original_model, peft_mod
             repetition_penalty=1.2,  # Prevents repetition!
             no_repeat_ngram_size=3,  # No 3-gram repetition
             early_stopping=True,
-            pad_token_id=tokenizer.eos_token_id,
+            pad_token_id=tokenizer.pad_token_id,
             eos_token_id=tokenizer.eos_token_id)
 
     ge_config_v2 = GenerationConfig(
@@ -39,7 +39,7 @@ def evaluate_dataset_patient_doc_QA(dataset, tokenizer, original_model, peft_mod
             repetition_penalty=1.2,  # Prevents repetition!
             no_repeat_ngram_size=3,  # No 3-gram repetition
             do_sample=False,
-            pad_token_id=tokenizer.eos_token_id,
+            pad_token_id=tokenizer.pad_token_id,
             eos_token_id=tokenizer.eos_token_id
     )
 
@@ -78,7 +78,7 @@ def evaluate_with_metric(dataset, tokenizer, original_model, peft_model):
                                     repetition_penalty=1.2,  # Prevents repetition!
                                     no_repeat_ngram_size=3,  # No 3-gram repetition
                                     early_stopping=True,
-                                    pad_token_id=tokenizer.eos_token_id,
+                                    pad_token_id=tokenizer.pad_token_id,
                                     eos_token_id=tokenizer.eos_token_id)
 
     ge_config_v2 = GenerationConfig(
@@ -88,7 +88,7 @@ def evaluate_with_metric(dataset, tokenizer, original_model, peft_model):
         repetition_penalty=1.2,  # Prevents repetition!
         no_repeat_ngram_size=3,  # No 3-gram repetition
         do_sample=False,
-        pad_token_id=tokenizer.eos_token_id,
+        pad_token_id=tokenizer.pad_token_id,
         eos_token_id=tokenizer.eos_token_id
     )
 
@@ -151,15 +151,25 @@ def get_answer(user_input, model_version="peft"):
     Question: {user_input}
     Answer:
     """
+    ge_config_v1 = GenerationConfig(max_new_tokens=150,
+                                    do_sample=True,
+                                    temperature=0.2,
+                                    top_p=0.9,
+                                    top_k=50,
+                                    repetition_penalty=1.2,  # Prevents repetition!
+                                    no_repeat_ngram_size=3,  # No 3-gram repetition
+                                    early_stopping=False,
+                                    pad_token_id=tokenizer.pad_token_id,
+                                    eos_token_id=tokenizer.eos_token_id)
 
     ge_config_v2 = GenerationConfig(
         max_new_tokens=150,
         num_beams=3,
-        early_stopping=True,
+        early_stopping=False,
         repetition_penalty=1.2,  # Prevents repetition!
         no_repeat_ngram_size=3,  # No 3-gram repetition
         do_sample=False,
-        pad_token_id=tokenizer.eos_token_id,
+        pad_token_id=tokenizer.pad_token_id,
         eos_token_id=tokenizer.eos_token_id
     )
 
