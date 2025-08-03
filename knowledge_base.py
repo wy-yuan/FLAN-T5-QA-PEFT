@@ -715,7 +715,6 @@ class RAGSystem:
 if __name__ == "__main__":
     print("\nSTEP 1: Collecting WHO Guidelines")
     print("-" * 40)
-
     # collector = WHOGuidelinesCollector(output_dir="./data/knowledge_base")
     # collection_results = collector.collect_and_save_all_guidelines()
 

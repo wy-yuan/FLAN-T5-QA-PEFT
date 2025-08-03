@@ -1,13 +1,6 @@
 # FLAN-T5-QA-PEFT
 Fine tune FLAN-T5 for customized Question Answering system with PEFT (LoRA)
 
-| Metric | Original | PEFT | Improvement (Points) | Improvement (%) |
-|--------|----------|------|---------------------|-----------------|
-| rouge1 | 0.182 | 0.255 | +0.073 | +40.1% |
-| rouge2 | 0.065 | 0.095 | +0.030 | +46.2% |
-| rougeL | 0.153 | 0.191 | +0.038 | +24.8% |
-| rougeLsum | 0.155 | 0.195 | +0.040 | +25.8% |
-
 ### Install
 ```bash
 conda create -n LM_py312 python=3.12
@@ -17,16 +10,24 @@ conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvi
 pip install -U torchdata datasets==2.17.0 transformers==4.38.2 accelerate==0.28.0 evaluate==0.4.0 rouge_score==0.1.2 peft==0.3.0
 
 pip install sentence-transformers faiss-cpu PyPDF2 beautifulsoup4 langchain
-
+pip install -U langchain-community
 pip install --upgrade accelerate peft
 ```
-
 
 ### Fine-tune on customized dataset using LoRA method. (Rank=32)
 ```bash
 python fine_tune_LoRA.py
 ```
+
 ### Evaluate using ROUGE metric
+| Metric | Original | PEFT | Improvement (Points) | Improvement (%) |
+|--------|----------|------|---------------------|-----------------|
+| rouge1 | 0.182 | 0.255 | +0.073 | +40.1% |
+| rouge2 | 0.065 | 0.095 | +0.030 | +46.2% |
+| rougeL | 0.153 | 0.191 | +0.038 | +24.8% |
+| rougeLsum | 0.155 | 0.195 | +0.040 | +25.8% |
+
+
 ROUGE-1 = (Number of overlapping unigrams) / (Total unigrams in reference summary)
 
 ROUGE-2 = (Number of overlapping bigrams) / (Total bigrams in reference summary)
@@ -48,4 +49,8 @@ Where:
 ```bash
 python model_evaluate.py
 ```
+
+### Add RAG system for medical QA
+knowledge_base.py ---- Collect WHO guideline as knowledge base
+LangChain_chunk_kb.py ---- 
 
