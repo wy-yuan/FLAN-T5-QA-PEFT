@@ -67,21 +67,6 @@ class MedicalRAGSystem:
                 "title": "Hypertension Treatment",
                 "content": "Hypertension treatment involves lifestyle changes and medications. ACE inhibitors and diuretics are commonly prescribed. Target blood pressure is typically below 130/80 mmHg for most patients."
             },
-            {
-                "id": "doc_3",
-                "title": "Cardiac Symptoms",
-                "content": "Chest pain can indicate various cardiac conditions including myocardial infarction, angina, or pericarditis. Immediate medical attention is required for acute chest pain with accompanying symptoms like shortness of breath or sweating."
-            },
-            {
-                "id": "doc_4",
-                "title": "Antibiotic Resistance",
-                "content": "Antibiotic resistance occurs when bacteria develop immunity to antibiotics. This is caused by overuse and misuse of antibiotics. Prevention includes completing prescribed courses and avoiding unnecessary antibiotic use."
-            },
-            {
-                "id": "doc_5",
-                "title": "Vaccination Guidelines",
-                "content": "Vaccination schedules vary by age and health conditions. Annual flu vaccines are recommended for most people over 6 months. COVID-19 boosters are recommended based on current guidelines and individual risk factors."
-            }
         ]
 
         with open(save_path, 'w') as f:
@@ -283,7 +268,7 @@ class RAGEvaluator:
 
 class HallucinationEvaluator:
     def __init__(self):
-        # For demonstration - in practice you'd use more sophisticated models
+        # May need more sophisticated models
         self.fact_checker_model = SentenceTransformer('all-MiniLM-L6-v2')
 
     def compute_factscore(self, predictions: List[str], contexts: List[str]) -> Dict:

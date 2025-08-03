@@ -5,7 +5,7 @@ import evaluate
 import pandas as pd
 import numpy as np
 from datasets import load_from_disk
-from peft import PeftModel, PeftConfig
+from peft import PeftModel
 
 def evaluate_dataset_patient_doc_QA(dataset, tokenizer, original_model, peft_model):
     # Select sample
