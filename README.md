@@ -19,6 +19,19 @@ pip install --upgrade accelerate peft
 python fine_tune_LoRA.py
 ```
 
+```bash
+python model_evaluate.py
+```
+
+### Add RAG system for medical QA
+knowledge_base.py
+- Collect WHO guideline as knowledge database
+
+LangChain_chunk_kb.py
+- ✅ Documents chunked and saved to separate files
+- ✅ LangChain RAG system built with FAISS vector store
+- ✅ Custom T5 LLM integrated with retrieval chain
+
 ### Evaluate using ROUGE metric
 | Metric | Original | PEFT | Improvement (Points) | Improvement (%) |
 |--------|----------|------|---------------------|-----------------|
@@ -26,7 +39,6 @@ python fine_tune_LoRA.py
 | rouge2 | 0.065 | 0.095 | +0.030 | +46.2% |
 | rougeL | 0.153 | 0.191 | +0.038 | +24.8% |
 | rougeLsum | 0.155 | 0.195 | +0.040 | +25.8% |
-
 
 ROUGE-1 = (Number of overlapping unigrams) / (Total unigrams in reference summary)
 
@@ -46,16 +58,4 @@ Where:
 - n = number of sentences in system summary
 - |R| = total words in reference summary
 
-```bash
-python model_evaluate.py
-```
-
-### Add RAG system for medical QA
-knowledge_base.py
-- Collect WHO guideline as knowledge database
-
-LangChain_chunk_kb.py
-- ✅ Documents chunked and saved to separate files
-- ✅ LangChain RAG system built with FAISS vector store
-- ✅ Custom T5 LLM integrated with retrieval chain
 
