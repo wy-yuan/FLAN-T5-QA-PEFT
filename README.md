@@ -51,6 +51,11 @@ python model_evaluate.py
 ```
 
 ### Add RAG system for medical QA
-knowledge_base.py ---- Collect WHO guideline as knowledge base
-LangChain_chunk_kb.py ---- 
+knowledge_base.py
+- Collect WHO guideline as knowledge database
+
+LangChain_chunk_kb.py
+- ✅ Documents chunked and saved to separate files
+- ✅ LangChain RAG system built with FAISS vector store
+- ✅ Custom T5 LLM integrated with retrieval chain
 
